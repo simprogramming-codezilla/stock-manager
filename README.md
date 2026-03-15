@@ -2,7 +2,7 @@
 
 Projeto desenvolvido no âmbito da Unidade Curricular **Laboratório de Desenvolvimento de Software 2026** da Universidade Aberta.
 
-## Equipa CodeZilla
+## Equipa CodeZilla (Equipa 11)
 
 - Pedro Nogueira — Líder
 - Alexandre Fernandes — Desenvolvedor
