@@ -12,7 +12,7 @@ Projeto desenvolvido no âmbito da Unidade Curricular **Laboratório de Desenvol
 
 ## Objetivo do projeto
 
-Este projeto consiste .
+Este projeto consiste em .
 
 O objetivo da equipa é:
 
