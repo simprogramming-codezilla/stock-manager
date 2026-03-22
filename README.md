@@ -1,4 +1,4 @@
-# Projeto PDG
+# Projeto CodeZilla
 
 Projeto desenvolvido no âmbito da Unidade Curricular **Laboratório de Desenvolvimento de Software 2026** da Universidade Aberta.
 
@@ -12,15 +12,11 @@ Projeto desenvolvido no âmbito da Unidade Curricular **Laboratório de Desenvol
 
 ## Objetivo do projeto
 
-Este projeto consiste na análise, revisão e melhoria de um sistema originalmente desenvolvido em Python e posteriormente migrado manualmente para C#.
+Este projeto consiste .
 
 O objetivo da equipa é:
 
-- Analisar o código existente
-- Identificar problemas
-- Corrigir erros
-- Melhorar a estrutura do software
-- Documentar o processo de desenvolvimento
+
 
 ## Estrutura do repositório
 
