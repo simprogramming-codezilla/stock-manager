@@ -1,4 +1,4 @@
-# Projeto CodeZilla
+# Projeto CodeZilla - Domestic Stock Manager
 
 Projeto desenvolvido no âmbito da Unidade Curricular **Laboratório de Desenvolvimento de Software 2026** da Universidade Aberta.
 
