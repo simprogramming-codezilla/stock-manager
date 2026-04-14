@@ -12,9 +12,12 @@ Projeto desenvolvido no âmbito da Unidade Curricular **Laboratório de Desenvol
 
 ## Objetivo do projeto
 
-Este projeto consiste em .
+Este projeto consiste no desenvolvimento de um Gestor de Stocks Doméstico, 
+capaz de gerir produtos, quantidades e listas de reposição, utilizando 
+a API Json.NET para persistência de dados em formato JSON.
 
-O objetivo da equipa é:
+O objetivo da equipa é demonstrar a viabilidade da utilização desta API 
+numa aplicação estruturada segundo o padrão arquitetónico MVC.
 
 
 
