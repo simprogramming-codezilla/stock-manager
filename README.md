@@ -19,6 +19,24 @@ a API Json.NET para persistência de dados em formato JSON.
 O objetivo da equipa é demonstrar a viabilidade da utilização desta API 
 numa aplicação estruturada segundo o padrão arquitetónico MVC.
 
+## Contexto académico
+
+Este projeto é desenvolvido no contexto da metodologia e-SimProgramming,
+adotada na unidade curricular, com foco na qualidade estrutural do software.
+
+São considerados princípios como:
+- baixo acoplamento
+- elevada coesão
+- separação de responsabilidades
+
+## Arquitetura
+
+A aplicação segue o padrão Model-View-Controller (MVC),
+na variante com input na View (Curry & Grace).
+
+- View: recebe input do utilizador
+- Controller: coordena a lógica da aplicação
+- Model: gere os dados e regras de negócio
 
 
 ## Estrutura do repositório
