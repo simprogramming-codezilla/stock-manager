@@ -49,7 +49,6 @@ namespace GestorStockDomestico
 
         private void ProcessarOpcao(string opcao)
         {
-            // TODO (Kelvin): implementar lógica de navegação do menu
             switch (opcao)
             {
                 case "1":
@@ -69,20 +68,30 @@ namespace GestorStockDomestico
                     break;
                 default:
                     view.MostrarErro("Opção inválida.");
-                    view.MostrarMenu();
                     break;
             }
+            view.MostrarMenu();
         }
 
         private void RegistarOuAtualizarProduto(string nome, int quantidade, int quantidadeMinima, string unidade)
         {
-            // TODO (Kelvin): validar dados se necessário antes de passar ao Model
+            if (string.IsNullOrWhiteSpace(nome) || quantidade <= 0 || quantidadeMinima < 0)
+            {
+                view.MostrarErro("Dados inválidos.");
+                view.MostrarMenu();
+                return;
+            }
             model.RegistarOuAtualizarProduto(nome, quantidade, quantidadeMinima, unidade);
         }
 
         private void RemoverQuantidade(string nomeProduto, int quantidade)
         {
-            // TODO (Kelvin): validar dados se necessário antes de passar ao Model
+            if (string.IsNullOrWhiteSpace(nomeProduto) || quantidade <= 0)
+            {
+                view.MostrarErro("Dados inválidos.");
+                view.MostrarMenu();
+                return;
+            }
             model.RemoverQuantidade(nomeProduto, quantidade);
         }
 
