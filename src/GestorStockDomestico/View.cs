@@ -32,51 +32,164 @@ namespace GestorStockDomestico
         public event SolicitacaoListaReposicao? PrecisoDeListaReposicao;
 
 
-        // ── Métodos de apresentação (a implementar por Carlos) ────────────
+        // ── Métodos de apresentação ───────────────────────────────────────
 
         public void MostrarMenu()
         {
-            // TODO (Carlos): apresentar menu principal e capturar opção
-            // Após capturar, invocar: OpcaoSelecionada?.Invoke(opcao);
+            // Apresenta o menu principal e recolhe a opção do utilizador
+            Console.WriteLine();
+            Console.WriteLine("=== Gestor de Stock Doméstico ===");
+            Console.WriteLine("1 - Mostrar stock");
+            Console.WriteLine("2 - Registar/atualizar produto");
+            Console.WriteLine("3 - Remover quantidade");
+            Console.WriteLine("4 - Lista de reposição");
+            Console.WriteLine("9 - Sair");
+            Console.Write("Opção: ");
+
+            string opcao = Console.ReadLine() ?? string.Empty;
+
+            // Notifica o Controller para processar a opção seleccionada
+            OpcaoSelecionada?.Invoke(opcao.Trim());
         }
 
         public void MostrarStock()
         {
-            // TODO (Carlos): pedir lista ao Model via PrecisoDeProdutos(ref lista)
-            // e apresentar cada produto no ecrã
+            // Pede ao Model a lista completa de produtos
+            if (PrecisoDeProdutos == null)
+            {
+                MostrarErro("Serviço de produtos indisponível.");
+                return;
+            }
+
+            List<Produto> lista = new List<Produto>();
+            PrecisoDeProdutos(ref lista);
+
+            Console.WriteLine();
+            Console.WriteLine("=== Stock Atual ===");
+
+            if (lista.Count == 0)
+            {
+                Console.WriteLine("Não existem produtos registados.");
+                return;
+            }
+
+            // Apresenta cada produto com quantidades e unidade
+            foreach (Produto p in lista)
+            {
+                Console.WriteLine($"{p.Nome} - {p.Quantidade} {p.Unidade} (mínimo: {p.QuantidadeMinima})");
+            }
         }
 
         public void PedirDadosProduto()
         {
-            // TODO (Carlos): pedir nome, quantidade, mínimo e unidade ao utilizador
-            // Após capturar, invocar: DadosProdutoIntroduzidos?.Invoke(...)
+            // Recolhe dados para registar ou actualizar um produto
+            Console.WriteLine();
+            Console.WriteLine("=== Registo/Atualização de Produto ===");
+
+            Console.Write("Nome do produto: ");
+            string nome = Console.ReadLine() ?? string.Empty;
+
+            int quantidade = LerInteiro("Quantidade: ", permitirZero: false);
+            int quantidadeMinima = LerInteiro("Quantidade mínima: ", permitirZero: true);
+
+            Console.Write("Unidade (ex: kg, un, l): ");
+            string unidade = Console.ReadLine() ?? string.Empty;
+
+            // Envia os dados para o Controller tratar
+            DadosProdutoIntroduzidos?.Invoke(nome.Trim(), quantidade, quantidadeMinima, unidade.Trim());
         }
 
         public void PedirRemocaoQuantidade()
         {
-            // TODO (Carlos): pedir nome do produto e quantidade a remover
-            // Após capturar, invocar: RemocaoSolicitada?.Invoke(...)
+            // Recolhe os dados para remover quantidade de um produto
+            Console.WriteLine();
+            Console.WriteLine("=== Remoção de Quantidade ===");
+
+            Console.Write("Nome do produto: ");
+            string nomeProduto = Console.ReadLine() ?? string.Empty;
+
+            int quantidade = LerInteiro("Quantidade a remover: ", permitirZero: false);
+
+            // Envia o pedido para o Controller tratar
+            RemocaoSolicitada?.Invoke(nomeProduto.Trim(), quantidade);
         }
 
         public void MostrarListaReposicao()
         {
-            // TODO (Carlos): pedir lista via PrecisoDeListaReposicao(ref lista)
-            // e apresentar produtos abaixo do mínimo
+            // Pede ao Model a lista de produtos abaixo do mínimo
+            if (PrecisoDeListaReposicao == null)
+            {
+                MostrarErro("Serviço de reposição indisponível.");
+                return;
+            }
+
+            List<Produto> lista = new List<Produto>();
+            PrecisoDeListaReposicao(ref lista);
+
+            Console.WriteLine();
+            Console.WriteLine("=== Lista de Reposição ===");
+
+            if (lista.Count == 0)
+            {
+                Console.WriteLine("Nenhum produto abaixo do mínimo.");
+                return;
+            }
+
+            // Apresenta os produtos que precisam de reposição
+            foreach (Produto p in lista)
+            {
+                Console.WriteLine($"{p.Nome} - {p.Quantidade} {p.Unidade} (mínimo: {p.QuantidadeMinima})");
+            }
         }
 
         public void MostrarConfirmacao(string mensagem)
         {
-            // TODO (Carlos): mostrar mensagem de confirmação
+            // Mostra confirmação de operações bem-sucedidas
+            Console.WriteLine();
+            Console.WriteLine($"[OK] {mensagem}");
         }
 
         public void MostrarErro(string mensagem)
         {
-            // TODO (Carlos): mostrar mensagem de erro
+            // Mostra erro quando algo falha
+            Console.WriteLine();
+            Console.WriteLine($"[ERRO] {mensagem}");
         }
 
         public void MostrarMensagemFinal()
         {
-            // TODO (Carlos): apresentar mensagem de encerramento
+            // Mensagem final antes de encerrar o programa
+            Console.WriteLine();
+            Console.WriteLine("Programa encerrado. Obrigado.");
+        }
+
+        // ── Método auxiliar interno da View ────────────────────────────────
+
+        private int LerInteiro(string prompt, bool permitirZero)
+        {
+            // Garante leitura de um inteiro válido
+            int valor;
+
+            while (true)
+            {
+                Console.Write(prompt);
+                string texto = Console.ReadLine() ?? string.Empty;
+
+                if (int.TryParse(texto, out valor))
+                {
+                    if (permitirZero && valor >= 0)
+                    {
+                        return valor;
+                    }
+
+                    if (!permitirZero && valor > 0)
+                    {
+                        return valor;
+                    }
+                }
+
+                Console.WriteLine("Valor inválido. Tente novamente.");
+            }
         }
     }
 }
