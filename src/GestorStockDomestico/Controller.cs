@@ -70,7 +70,6 @@ namespace GestorStockDomestico
                     view.MostrarErro("Opção inválida.");
                     break;
             }
-            view.MostrarMenu();
         }
 
         private void RegistarOuAtualizarProduto(string nome, int quantidade, int quantidadeMinima, string unidade)
