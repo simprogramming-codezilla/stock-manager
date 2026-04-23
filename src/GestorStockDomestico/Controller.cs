@@ -77,7 +77,6 @@ namespace GestorStockDomestico
             if (string.IsNullOrWhiteSpace(nome) || quantidade <= 0 || quantidadeMinima < 0)
             {
                 view.MostrarErro("Dados inválidos.");
-                view.MostrarMenu();
                 return;
             }
             model.RegistarOuAtualizarProduto(nome, quantidade, quantidadeMinima, unidade);
@@ -88,7 +87,6 @@ namespace GestorStockDomestico
             if (string.IsNullOrWhiteSpace(nomeProduto) || quantidade <= 0)
             {
                 view.MostrarErro("Dados inválidos.");
-                view.MostrarMenu();
                 return;
             }
             model.RemoverQuantidade(nomeProduto, quantidade);
