@@ -7,8 +7,7 @@ namespace GestorStockDomestico
     {
         private View view;
         private Model model;
-
-        private bool _emExecucao = true;
+        private bool _executando = true;
 
         public Controller()
         {
@@ -18,91 +17,134 @@ namespace GestorStockDomestico
             model.CarregarDados();
 
             // View → Controller
-            view.OpcaoSelecionada += ProcessarOpcao;
+            view.OpcaoSelecionada         += ProcessarOpcao;
             view.DadosProdutoIntroduzidos += RegistarOuAtualizarProduto;
-            view.RemocaoSolicitada += RemoverQuantidade;
-
-            //NOVO: View → Controller (pedidos de dados)
-            view.PrecisoDeProdutos += OnPedirProdutos;
-            view.PrecisoDeListaReposicao += OnPedirReposicao;
+            view.RemocaoSolicitada        += RemoverQuantidade;
 
             // Model → View
-            model.OperacaoConcluida += view.MostrarConfirmacao;
-            model.ErroStockInsuficiente += view.MostrarErro;
+            model.OperacaoConcluida      += view.MostrarConfirmacao;
+            model.ErroStockInsuficiente  += view.MostrarErro;
         }
 
         public void IniciarPrograma()
         {
-            while (_emExecucao)
+            while (_executando)
             {
                 view.MostrarMenu();
             }
         }
+
+        // =========================
+        // FLUXO DO MENU
+        // =========================
 
         private void ProcessarOpcao(string opcao)
         {
             switch (opcao)
             {
                 case "1":
-                    view.MostrarStock();
+                    MostrarStock();
                     break;
+
                 case "2":
                     view.PedirDadosProduto();
                     break;
+
                 case "3":
                     view.PedirRemocaoQuantidade();
                     break;
+
                 case "4":
-                    view.MostrarListaReposicao();
+                    MostrarListaReposicao();
                     break;
+
                 case "9":
                     Encerrar();
-                    return;
+                    break;
+
                 default:
                     view.MostrarErro("Opção inválida.");
                     break;
             }
         }
 
+        // =========================
+        // FLUXO VIEW → CONTROLLER → MODEL → VIEW
+        // =========================
+
+        private void MostrarStock()
+        {
+            try
+            {
+                var lista = new List<Produto>();
+                model.SolicitarListaProdutos(ref lista);
+                view.MostrarStock(lista);
+            }
+            catch (Exception ex)
+            {
+                view.MostrarErro($"Erro ao obter stock: {ex.Message}");
+            }
+        }
+
+        private void MostrarListaReposicao()
+        {
+            try
+            {
+                var lista = new List<Produto>();
+                model.SolicitarListaReposicao(ref lista);
+                view.MostrarListaReposicao(lista);
+            }
+            catch (Exception ex)
+            {
+                view.MostrarErro($"Erro ao obter lista de reposição: {ex.Message}");
+            }
+        }
+
+        // =========================
+        // INPUT → MODEL
+        // =========================
+
         private void RegistarOuAtualizarProduto(string nome, int quantidade, int quantidadeMinima, string unidade)
         {
-            if (string.IsNullOrWhiteSpace(nome) || quantidade <= 0 || quantidadeMinima < 0)
+            try
             {
-                view.MostrarErro("Dados inválidos.");
-                return;
+                model.RegistarOuAtualizarProduto(nome, quantidade, quantidadeMinima, unidade);
             }
-
-            model.RegistarOuAtualizarProduto(nome, quantidade, quantidadeMinima, unidade);
+            catch (Exception ex)
+            {
+                view.MostrarErro($"Erro ao registar produto: {ex.Message}");
+            }
         }
 
         private void RemoverQuantidade(string nomeProduto, int quantidade)
         {
-            if (string.IsNullOrWhiteSpace(nomeProduto) || quantidade <= 0)
+            try
             {
-                view.MostrarErro("Dados inválidos.");
-                return;
+                model.RemoverQuantidade(nomeProduto, quantidade);
             }
-
-            model.RemoverQuantidade(nomeProduto, quantidade);
+            catch (Exception ex)
+            {
+                view.MostrarErro($"Erro ao remover quantidade: {ex.Message}");
+            }
         }
 
-        //NOVO: Controller passa a intermediar pedidos
-
-        private void OnPedirProdutos(ref List<Produto> lista)
-        {
-            model.SolicitarListaProdutos(ref lista);
-        }
-
-        private void OnPedirReposicao(ref List<Produto> lista)
-        {
-            model.SolicitarListaReposicao(ref lista);
-        }
+        // =========================
+        // ENCERRAR
+        // =========================
 
         private void Encerrar()
         {
-            model.GuardarDados();
-            view.MostrarMensagemFinal();
-            Environment.Exit(0);
+            try
+            {
+                model.GuardarDados();
+                view.MostrarMensagemFinal();
+            }
+            catch (Exception ex)
+            {
+                view.MostrarErro($"Erro ao encerrar: {ex.Message}");
+            }
+
+            _executando = false;
         }
     }
 }
