@@ -1,51 +1,43 @@
 using System;
+using System.Collections.Generic;
 
 namespace GestorStockDomestico
 {
-    // COMPONENTE: Controller
-    // RESPONSÁVEL: Pedro (Líder) + Kelvin (fluxo interno)
-    // RESPONSABILIDADE: Único componente que conhece os restantes.
-    //                   Faz todas as ligações entre View e Model no arranque.
-    //                   Coordena o fluxo da aplicação (Curry & Grace: input na View).
-
     class Controller
     {
         private View view;
         private Model model;
 
+        private bool _emExecucao = true;
+
         public Controller()
         {
-            view  = new View();
+            view = new View();
             model = new Model();
 
-            // ── Carregar dados persistidos ─────────────────────────────────
             model.CarregarDados();
 
-            // ── Ligações: eventos de input da View → Controller ────────────
-            // Quando o utilizador selecciona uma opção, o Controller processa
-            view.OpcaoSelecionada         += ProcessarOpcao;
+            // View → Controller
+            view.OpcaoSelecionada += ProcessarOpcao;
             view.DadosProdutoIntroduzidos += RegistarOuAtualizarProduto;
-            view.RemocaoSolicitada        += RemoverQuantidade;
+            view.RemocaoSolicitada += RemoverQuantidade;
 
-            // ── Ligações: pedidos de dados da View → Model (ref) ──────────
-            // A View desconhece o Model — o Controller faz a ponte no arranque
-            view.PrecisoDeProdutos        += model.SolicitarListaProdutos;
-            view.PrecisoDeListaReposicao  += model.SolicitarListaReposicao;
+            //NOVO: View → Controller (pedidos de dados)
+            view.PrecisoDeProdutos += OnPedirProdutos;
+            view.PrecisoDeListaReposicao += OnPedirReposicao;
 
-            // ── Ligações: eventos de notificação do Model → View ──────────
-            // O Model notifica resultado — o Controller encaminha para a View
-            model.OperacaoConcluida       += view.MostrarConfirmacao;
-            model.ErroStockInsuficiente   += view.MostrarErro;
+            // Model → View
+            model.OperacaoConcluida += view.MostrarConfirmacao;
+            model.ErroStockInsuficiente += view.MostrarErro;
         }
 
         public void IniciarPrograma()
         {
-            // Inicia o ciclo principal — a View toma o controlo do input
-            view.MostrarMenu();
+            while (_emExecucao)
+            {
+                view.MostrarMenu();
+            }
         }
-
-
-        // ── Handlers dos eventos da View ───────────────────────────────────
 
         private void ProcessarOpcao(string opcao)
         {
@@ -65,7 +57,7 @@ namespace GestorStockDomestico
                     break;
                 case "9":
                     Encerrar();
-                    break;
+                    return;
                 default:
                     view.MostrarErro("Opção inválida.");
                     break;
@@ -79,6 +71,7 @@ namespace GestorStockDomestico
                 view.MostrarErro("Dados inválidos.");
                 return;
             }
+
             model.RegistarOuAtualizarProduto(nome, quantidade, quantidadeMinima, unidade);
         }
 
@@ -89,7 +82,20 @@ namespace GestorStockDomestico
                 view.MostrarErro("Dados inválidos.");
                 return;
             }
+
             model.RemoverQuantidade(nomeProduto, quantidade);
+        }
+
+        //NOVO: Controller passa a intermediar pedidos
+
+        private void OnPedirProdutos(ref List<Produto> lista)
+        {
+            model.SolicitarListaProdutos(ref lista);
+        }
+
+        private void OnPedirReposicao(ref List<Produto> lista)
+        {
+            model.SolicitarListaReposicao(ref lista);
         }
 
         private void Encerrar()
