@@ -36,20 +36,23 @@ namespace GestorStockDomestico
 
         public void MostrarMenu()
         {
-            // Apresenta o menu principal e recolhe a opção do utilizador
-            Console.WriteLine();
-            Console.WriteLine("=== Gestor de Stock Doméstico ===");
-            Console.WriteLine("1 - Mostrar stock");
-            Console.WriteLine("2 - Registar/atualizar produto");
-            Console.WriteLine("3 - Remover quantidade");
-            Console.WriteLine("4 - Lista de reposição");
-            Console.WriteLine("9 - Sair");
-            Console.Write("Opção: ");
+            while (true)
+            {
+                // Apresenta o menu principal e recolhe a opção do utilizador
+                Console.WriteLine();
+                Console.WriteLine("=== Gestor de Stock Doméstico ===");
+                Console.WriteLine("1 - Mostrar stock");
+                Console.WriteLine("2 - Registar/atualizar produto");
+                Console.WriteLine("3 - Remover quantidade");
+                Console.WriteLine("4 - Lista de reposição");
+                Console.WriteLine("9 - Sair");
+                Console.Write("Opção: ");
 
-            string opcao = Console.ReadLine() ?? string.Empty;
+                string opcao = Console.ReadLine() ?? string.Empty;
 
-            // Notifica o Controller para processar a opção seleccionada
-            OpcaoSelecionada?.Invoke(opcao.Trim());
+                // Notifica o Controller para processar a opção seleccionada
+                OpcaoSelecionada?.Invoke(opcao.Trim());
+            }
         }
 
         public void MostrarStock()
