@@ -91,11 +91,8 @@ namespace GestorStockDomestico
             Console.Write("Nome: ");
             string nome = Console.ReadLine() ?? "";
 
-            Console.Write("Quantidade: ");
-            int quantidade = int.TryParse(Console.ReadLine(), out int q) ? q : -1;
-
-            Console.Write("Quantidade mínima: ");
-            int quantidadeMinima = int.TryParse(Console.ReadLine(), out int qm) ? qm : -1;
+            int quantidade       = LerInteiro("Quantidade: ");
+            int quantidadeMinima = LerInteiro("Quantidade mínima: ");
 
             Console.Write("Unidade: ");
             string unidade = Console.ReadLine() ?? "";
@@ -109,11 +106,28 @@ namespace GestorStockDomestico
             Console.Write("Nome do produto: ");
             string nome = Console.ReadLine() ?? "";
 
-            Console.Write("Quantidade a remover: ");
-            int quantidade = int.TryParse(Console.ReadLine(), out int q) ? q : -1;
+            int quantidade = LerInteiro("Quantidade a remover: ");
 
             // Envia pedido ao Controller
             RemocaoSolicitada?.Invoke(nome, quantidade);
+        }
+
+
+        // ── Método auxiliar interno da View ──────────────────────
+        private int LerInteiro(string prompt)
+        {
+            while (true)
+            {
+                Console.Write(prompt);
+                string texto = Console.ReadLine() ?? string.Empty;
+
+                if (int.TryParse(texto, out int valor))
+                {
+                    return valor;
+                }
+
+                Console.WriteLine("Valor inválido. Introduza um número inteiro.");
+            }
         }
 
 
