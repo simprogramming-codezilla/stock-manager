@@ -118,18 +118,23 @@ namespace GestorStockDomestico
 
         public void CarregarDados()
         {
-            // TODO (Alexandre): carregar lista de produtos do ficheiro JSON via Json.NET
-
             if (!File.Exists(_ficheiroJson))
             {
                 _listaProdutos = new List<Produto>();
                 return;
             }
 
-            string json = File.ReadAllText(_ficheiroJson);
+            try
+            {
+                string json = File.ReadAllText(_ficheiroJson);
 
-            _listaProdutos = JsonConvert.DeserializeObject<List<Produto>>(json)
-                            ?? new List<Produto>();
+                _listaProdutos = JsonConvert.DeserializeObject<List<Produto>>(json)
+                                ?? new List<Produto>();
+            }
+            catch
+            {
+                _listaProdutos = new List<Produto>();
+            }
         }
 
         public void GuardarDados()
