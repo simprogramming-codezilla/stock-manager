@@ -85,7 +85,7 @@ namespace GestorStockDomestico
             Console.Write("Nome: ");
             string nome = Console.ReadLine() ?? "";
 
-            int quantidade = LerInteiro("Quantidade: ");
+            int quantidade       = LerInteiro("Quantidade: ");
             int quantidadeMinima = LerInteiro("Quantidade mínima: ");
 
             Console.Write("Unidade: ");
@@ -105,25 +105,25 @@ namespace GestorStockDomestico
         }
 
 
-        // ── Validação técnica (APENAS tipo, não regras de negócio) ─
-
-        private int LerInteiro(string mensagem)
+        // ── Método auxiliar interno da View ──────────────────────
+        private int LerInteiro(string prompt)
         {
-            int valor;
-
             while (true)
             {
-                Console.Write(mensagem);
+                Console.Write(prompt);
+                string texto = Console.ReadLine() ?? string.Empty;
 
-                if (int.TryParse(Console.ReadLine(), out valor))
+                if (int.TryParse(texto, out int valor))
+                {
                     return valor;
+                }
 
                 Console.WriteLine("Valor inválido. Introduza um número inteiro.");
             }
         }
 
 
-        // ── Feedback ─────────────────────────────────────────────
+        // ── Feedback ao utilizador ────────────────────────────────
 
         public void MostrarConfirmacao(string mensagem)
         {
