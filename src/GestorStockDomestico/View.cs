@@ -7,30 +7,25 @@ namespace GestorStockDomestico
     // RESPONSÁVEL: Carlos
     // RESPONSABILIDADE:
     // - Captura input do utilizador
-    // - Apresenta dados no ecrã
-    // - NÃO contém lógica de negócio
-    // - NÃO comunica diretamente com o Model
-    // VARIANTE MVC: Curry & Grace — input entra na View
+    // - Apresenta dados
+    // - NÃO tem lógica de negócio
+    // - NÃO comunica com o Model
 
     class View
     {
         // ── Eventos (View → Controller) ──────────────────────────
-        // A View apenas notifica ações do utilizador
 
-        // Opção selecionada no menu principal
         public delegate void OpcaoSelecionadaHandler(string opcao);
         public event OpcaoSelecionadaHandler? OpcaoSelecionada;
 
-        // Dados introduzidos para registo/atualização de produto
         public delegate void DadosProdutoHandler(string nome, int quantidade, int quantidadeMinima, string unidade);
         public event DadosProdutoHandler? DadosProdutoIntroduzidos;
 
-        // Pedido de remoção de quantidade
         public delegate void RemocaoHandler(string nomeProduto, int quantidade);
         public event RemocaoHandler? RemocaoSolicitada;
 
 
-        // ── Interface principal ───────────────────────────────────
+        // ── Menu principal ───────────────────────────────────────
 
         public void MostrarMenu()
         {
@@ -44,12 +39,11 @@ namespace GestorStockDomestico
             Console.Write("Opção: ");
             string? opcao = Console.ReadLine();
 
-            // Notifica o Controller
             OpcaoSelecionada?.Invoke(opcao ?? "");
         }
 
 
-        // ── Apresentação de dados (Controller → View) ─────────────
+        // ── Apresentação ─────────────────────────────────────────
 
         public void MostrarStock(List<Produto> lista)
         {
@@ -84,23 +78,19 @@ namespace GestorStockDomestico
         }
 
 
-        // ── Captura de input ──────────────────────────────────────
+        // ── Input ────────────────────────────────────────────────
 
         public void PedirDadosProduto()
         {
             Console.Write("Nome: ");
             string nome = Console.ReadLine() ?? "";
 
-            Console.Write("Quantidade: ");
-            int quantidade = int.TryParse(Console.ReadLine(), out int q) ? q : -1;
-
-            Console.Write("Quantidade mínima: ");
-            int quantidadeMinima = int.TryParse(Console.ReadLine(), out int qm) ? qm : -1;
+            int quantidade = LerInteiro("Quantidade: ");
+            int quantidadeMinima = LerInteiro("Quantidade mínima: ");
 
             Console.Write("Unidade: ");
             string unidade = Console.ReadLine() ?? "";
 
-            // Envia dados para o Controller
             DadosProdutoIntroduzidos?.Invoke(nome, quantidade, quantidadeMinima, unidade);
         }
 
@@ -109,15 +99,31 @@ namespace GestorStockDomestico
             Console.Write("Nome do produto: ");
             string nome = Console.ReadLine() ?? "";
 
-            Console.Write("Quantidade a remover: ");
-            int quantidade = int.TryParse(Console.ReadLine(), out int q) ? q : -1;
+            int quantidade = LerInteiro("Quantidade a remover: ");
 
-            // Envia pedido ao Controller
             RemocaoSolicitada?.Invoke(nome, quantidade);
         }
 
 
-        // ── Feedback ao utilizador ────────────────────────────────
+        // ── Validação técnica (APENAS tipo, não regras de negócio) ─
+
+        private int LerInteiro(string mensagem)
+        {
+            int valor;
+
+            while (true)
+            {
+                Console.Write(mensagem);
+
+                if (int.TryParse(Console.ReadLine(), out valor))
+                    return valor;
+
+                Console.WriteLine("Valor inválido. Introduza um número inteiro.");
+            }
+        }
+
+
+        // ── Feedback ─────────────────────────────────────────────
 
         public void MostrarConfirmacao(string mensagem)
         {

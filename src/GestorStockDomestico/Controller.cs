@@ -35,7 +35,7 @@ namespace GestorStockDomestico
         }
 
         // =========================
-        // FLUXO DO MENU
+        // MENU
         // =========================
 
         private void ProcessarOpcao(string opcao)
@@ -69,7 +69,7 @@ namespace GestorStockDomestico
         }
 
         // =========================
-        // FLUXO VIEW → CONTROLLER → MODEL → VIEW
+        // FLUXO MVC CORRETO
         // =========================
 
         private void MostrarStock()
