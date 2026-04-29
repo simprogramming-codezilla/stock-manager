@@ -418,3 +418,6 @@ FodyWeavers.xsd
 *.msp
 
 /src/GestorStockDomestico/.github/copilot-instructions.md
+
+# Ficheiro de dados gerado em runtime pela aplicação
+produtos.json
