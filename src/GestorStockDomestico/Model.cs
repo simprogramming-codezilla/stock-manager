@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
+using GestorStockDomestico.Contracts;
 
 namespace GestorStockDomestico
 {
@@ -12,28 +13,25 @@ namespace GestorStockDomestico
     class Model
     {
         // Lista interna de produtos — estado do Model
-        private List<Produto> _listaProdutos = new List<Produto>();
+        // NOVO (T5.7): agora usa IProduto (contrato)
+        private List<IProduto> _listaProdutos = new List<IProduto>();
 
         // Ficheiro de persistência JSON
         private readonly string _ficheiroJson = "produtos.json";
 
         // ── Eventos de notificação (Model → Controller) ───────────────────
-        // Notifica que ocorreu um erro de stock insuficiente
         public delegate void ErroStockHandler(string mensagem);
         public event ErroStockHandler? ErroStockInsuficiente;
 
-        // Notifica que uma operação foi concluída com sucesso
         public delegate void ConfirmacaoHandler(string mensagem);
         public event ConfirmacaoHandler? OperacaoConcluida;
 
 
-        // ── Métodos de resposta a pedidos ref (a implementar por Alexandre) ──
+        // ── Métodos de resposta a pedidos ref ─────────────────────────────
 
-        public void SolicitarListaProdutos(ref List<Produto> lista)
+        public void SolicitarListaProdutos(ref List<IProduto> lista)
         {
-            // TODO (Alexandre): copiar _listaProdutos para lista (deep copy)
-            // Não fazer: lista = _listaProdutos; (expõe estado interno)
-
+            // Deep copy — não expor estado interno
             lista.Clear();
 
             foreach (var p in _listaProdutos)
@@ -47,11 +45,8 @@ namespace GestorStockDomestico
             }
         }
 
-        public void SolicitarListaReposicao(ref List<Produto> lista)
+        public void SolicitarListaReposicao(ref List<IProduto> lista)
         {
-            // TODO (Alexandre): filtrar produtos com Quantidade < QuantidadeMinima
-            // e copiá-los para lista
-
             lista.Clear();
 
             foreach (var p in _listaProdutos)
@@ -69,58 +64,68 @@ namespace GestorStockDomestico
         }
 
 
-        // ── Métodos de lógica de negócio (a implementar por Alexandre) ────
+        // ── Métodos de lógica de negócio ──────────────────────────────────
 
-        public void RegistarOuAtualizarProduto(string nome, int quantidade, int quantidadeMinima, string unidade)
+        public IResultadoOperacao RegistarOuAtualizarProduto(string nome, int quantidade, int quantidadeMinima, string unidade)
         {
-            // TODO (Alexandre): adicionar novo produto ou actualizar existente
-            // Após sucesso: OperacaoConcluida?.Invoke("Produto registado com sucesso.");
-            // Persistir em JSON via Json.NET
-
-            Produto? produto = _listaProdutos.Find(
+            // Procurar produto existente
+            var produtoExistente = _listaProdutos.Find(
                 p => p.Nome.Equals(nome, StringComparison.OrdinalIgnoreCase));
 
-            if (produto == null)
+            if (produtoExistente == null)
             {
+                // Criar novo produto (imutável)
                 _listaProdutos.Add(new Produto(nome, quantidade, quantidadeMinima, unidade));
             }
             else
             {
-                produto.Quantidade = quantidade;
-                produto.QuantidadeMinima = quantidadeMinima;
-                produto.Unidade = unidade;
+                // Substituir instância (imutabilidade)
+                _listaProdutos.Remove(produtoExistente);
+                _listaProdutos.Add(new Produto(nome, quantidade, quantidadeMinima, unidade));
             }
 
             GuardarDados();
             OperacaoConcluida?.Invoke("Produto registado com sucesso.");
+
+            return new ResultadoOperacao(true, "Produto registado com sucesso.");
         }
 
-        public void RemoverQuantidade(string nomeProduto, int quantidade)
+        public IResultadoOperacao RemoverQuantidade(string nomeProduto, int quantidade)
         {
-            // TODO (Alexandre): verificar se há stock suficiente
-            // Se não: ErroStockInsuficiente?.Invoke("Stock insuficiente.");
-            // Se sim: decrementar e persistir
-            // Após sucesso: OperacaoConcluida?.Invoke("Quantidade removida.");
-
-            Produto? produto = _listaProdutos.Find(
+            var produto = _listaProdutos.Find(
                 p => p.Nome.Equals(nomeProduto, StringComparison.OrdinalIgnoreCase));
 
             if (produto == null || produto.Quantidade < quantidade)
             {
                 ErroStockInsuficiente?.Invoke("Stock insuficiente.");
-                return;
+                return new ResultadoOperacao(false, "Stock insuficiente.");
             }
 
-            produto.Quantidade -= quantidade;
+            // Criar nova instância com quantidade atualizada
+            var novoProduto = new Produto(
+                produto.Nome,
+                produto.Quantidade - quantidade,
+                produto.QuantidadeMinima,
+                produto.Unidade
+            );
+
+            _listaProdutos.Remove(produto);
+            _listaProdutos.Add(novoProduto);
+
             GuardarDados();
             OperacaoConcluida?.Invoke("Quantidade removida.");
+
+            return new ResultadoOperacao(true, "Quantidade removida.");
         }
+
+
+        // ── Persistência JSON ─────────────────────────────────────────────
 
         public void CarregarDados()
         {
             if (!File.Exists(_ficheiroJson))
             {
-                _listaProdutos = new List<Produto>();
+                _listaProdutos = new List<IProduto>();
                 return;
             }
 
@@ -128,25 +133,49 @@ namespace GestorStockDomestico
             {
                 string json = File.ReadAllText(_ficheiroJson);
 
-                _listaProdutos = JsonConvert.DeserializeObject<List<Produto>>(json)
-                                ?? new List<Produto>();
-            }
-            catch
-            {
-                _listaProdutos = new List<Produto>();
-            }
+            var lista = JsonConvert.DeserializeObject<List<Produto>>(json)
+                        ?? new List<Produto>();
+
+            // Converter para IProduto
+            _listaProdutos = new List<IProduto>(lista);
         }
 
         public void GuardarDados()
         {
-            // TODO (Alexandre): guardar lista de produtos em ficheiro JSON via Json.NET
+            // Serializar como lista de Produto (classe concreta)
+            var listaConcreta = new List<Produto>();
+
+            foreach (var p in _listaProdutos)
+            {
+                listaConcreta.Add(new Produto(
+                    p.Nome,
+                    p.Quantidade,
+                    p.QuantidadeMinima,
+                    p.Unidade
+                ));
+            }
 
             string json = JsonConvert.SerializeObject(
-                _listaProdutos,
+                listaConcreta,
                 Formatting.Indented
             );
 
             File.WriteAllText(_ficheiroJson, json);
+        }
+    }
+
+
+    // ── Implementação concreta de IResultadoOperacao ─────────────────────
+
+    class ResultadoOperacao : IResultadoOperacao
+    {
+        public bool Sucesso { get; }
+        public string Mensagem { get; }
+
+        public ResultadoOperacao(bool sucesso, string mensagem)
+        {
+            Sucesso = sucesso;
+            Mensagem = mensagem;
         }
     }
 }
