@@ -1,4 +1,4 @@
-namespace GestorStockDomestico.Contracts
+﻿namespace GestorStockDomestico.Contracts
 {
     public interface IProduto
     {
