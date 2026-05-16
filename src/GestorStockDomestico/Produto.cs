@@ -1,7 +1,8 @@
+using GestorStockDomestico.Contracts;
+
 namespace GestorStockDomestico
 {
-    // Classe de dados partilhada entre os componentes MVC
-    class Produto
+    class Produto : IProduto
     {
         public string Nome { get; set; }
         public int Quantidade { get; set; }

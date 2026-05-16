@@ -1,5 +1,7 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
+using GestorStockDomestico.Contracts;
 
 namespace GestorStockDomestico
 {
@@ -45,11 +47,11 @@ namespace GestorStockDomestico
 
         // ── Apresentação ─────────────────────────────────────────
 
-        public void MostrarStock(List<Produto> lista)
+        public void MostrarStock(IEnumerable<IProduto> lista)
         {
             Console.WriteLine("\n--- STOCK ---");
 
-            if (lista.Count == 0)
+            if (lista.Any())
             {
                 Console.WriteLine("Sem produtos.");
                 return;
@@ -61,11 +63,11 @@ namespace GestorStockDomestico
             }
         }
 
-        public void MostrarListaReposicao(List<Produto> lista)
+        public void MostrarListaReposicao(IEnumerable<IProduto> lista)
         {
             Console.WriteLine("\n--- REPOSIÇÃO ---");
 
-            if (lista.Count == 0)
+            if (lista.Any())
             {
                 Console.WriteLine("Nenhum produto abaixo do mínimo.");
                 return;

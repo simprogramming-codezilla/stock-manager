@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using GestorStockDomestico.Contracts;
 
 namespace GestorStockDomestico
 {
@@ -78,7 +79,10 @@ namespace GestorStockDomestico
             {
                 var lista = new List<Produto>();
                 model.SolicitarListaProdutos(ref lista);
-                view.MostrarStock(lista);
+
+                IEnumerable<IProduto> listaInterface = lista;
+
+                view.MostrarStock(listaInterface);
             }
             catch (Exception ex)
             {
@@ -92,7 +96,10 @@ namespace GestorStockDomestico
             {
                 var lista = new List<Produto>();
                 model.SolicitarListaReposicao(ref lista);
-                view.MostrarListaReposicao(lista);
+
+                IEnumerable<IProduto> listaInterface = lista;
+
+                view.MostrarListaReposicao(listaInterface);
             }
             catch (Exception ex)
             {
