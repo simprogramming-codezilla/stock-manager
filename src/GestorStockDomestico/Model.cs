@@ -129,7 +129,9 @@ namespace GestorStockDomestico
                 return;
             }
 
-            string json = File.ReadAllText(_ficheiroJson);
+            try
+            {
+                string json = File.ReadAllText(_ficheiroJson);
 
             var lista = JsonConvert.DeserializeObject<List<Produto>>(json)
                         ?? new List<Produto>();

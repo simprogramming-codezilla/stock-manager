@@ -1,105 +1,150 @@
 using System;
+using System.Collections.Generic;
 
 namespace GestorStockDomestico
 {
-    // COMPONENTE: Controller
-    // RESPONSÁVEL: Pedro (Líder) + Kelvin (fluxo interno)
-    // RESPONSABILIDADE: Único componente que conhece os restantes.
-    //                   Faz todas as ligações entre View e Model no arranque.
-    //                   Coordena o fluxo da aplicação (Curry & Grace: input na View).
-
     class Controller
     {
         private View view;
         private Model model;
+        private bool _executando = true;
 
         public Controller()
         {
-            view  = new View();
+            view = new View();
             model = new Model();
 
-            // ── Carregar dados persistidos ─────────────────────────────────
             model.CarregarDados();
 
-            // ── Ligações: eventos de input da View → Controller ────────────
-            // Quando o utilizador selecciona uma opção, o Controller processa
+            // View → Controller
             view.OpcaoSelecionada         += ProcessarOpcao;
             view.DadosProdutoIntroduzidos += RegistarOuAtualizarProduto;
             view.RemocaoSolicitada        += RemoverQuantidade;
 
-            // ── Ligações: pedidos de dados da View → Model (ref) ──────────
-            // A View desconhece o Model — o Controller faz a ponte no arranque
-            view.PrecisoDeProdutos        += model.SolicitarListaProdutos;
-            view.PrecisoDeListaReposicao  += model.SolicitarListaReposicao;
-
-            // ── Ligações: eventos de notificação do Model → View ──────────
-            // O Model notifica resultado — o Controller encaminha para a View
-            model.OperacaoConcluida       += view.MostrarConfirmacao;
-            model.ErroStockInsuficiente   += view.MostrarErro;
+            // Model → View
+            model.OperacaoConcluida      += view.MostrarConfirmacao;
+            model.ErroStockInsuficiente  += view.MostrarErro;
         }
 
         public void IniciarPrograma()
         {
-            // Inicia o ciclo principal — a View toma o controlo do input
-            view.MostrarMenu();
+            while (_executando)
+            {
+                view.MostrarMenu();
+            }
         }
 
-
-        // ── Handlers dos eventos da View ───────────────────────────────────
+        // =========================
+        // MENU
+        // =========================
 
         private void ProcessarOpcao(string opcao)
         {
             switch (opcao)
             {
                 case "1":
-                    view.MostrarStock();
+                    MostrarStock();
                     break;
+
                 case "2":
                     view.PedirDadosProduto();
                     break;
+
                 case "3":
                     view.PedirRemocaoQuantidade();
                     break;
+
                 case "4":
-                    view.MostrarListaReposicao();
+                    MostrarListaReposicao();
                     break;
+
                 case "9":
                     Encerrar();
                     break;
+
                 default:
                     view.MostrarErro("Opção inválida.");
                     break;
             }
-            view.MostrarMenu();
         }
+
+        // =========================
+        // FLUXO MVC CORRETO
+        // =========================
+
+        private void MostrarStock()
+        {
+            try
+            {
+                var lista = new List<Produto>();
+                model.SolicitarListaProdutos(ref lista);
+                view.MostrarStock(lista);
+            }
+            catch (Exception ex)
+            {
+                view.MostrarErro($"Erro ao obter stock: {ex.Message}");
+            }
+        }
+
+        private void MostrarListaReposicao()
+        {
+            try
+            {
+                var lista = new List<Produto>();
+                model.SolicitarListaReposicao(ref lista);
+                view.MostrarListaReposicao(lista);
+            }
+            catch (Exception ex)
+            {
+                view.MostrarErro($"Erro ao obter lista de reposição: {ex.Message}");
+            }
+        }
+
+        // =========================
+        // INPUT → MODEL
+        // =========================
 
         private void RegistarOuAtualizarProduto(string nome, int quantidade, int quantidadeMinima, string unidade)
         {
-            if (string.IsNullOrWhiteSpace(nome) || quantidade <= 0 || quantidadeMinima < 0)
+            try
             {
-                view.MostrarErro("Dados inválidos.");
-                view.MostrarMenu();
-                return;
+                model.RegistarOuAtualizarProduto(nome, quantidade, quantidadeMinima, unidade);
             }
-            model.RegistarOuAtualizarProduto(nome, quantidade, quantidadeMinima, unidade);
+            catch (Exception ex)
+            {
+                view.MostrarErro($"Erro ao registar produto: {ex.Message}");
+            }
         }
 
         private void RemoverQuantidade(string nomeProduto, int quantidade)
         {
-            if (string.IsNullOrWhiteSpace(nomeProduto) || quantidade <= 0)
+            try
             {
-                view.MostrarErro("Dados inválidos.");
-                view.MostrarMenu();
-                return;
+                model.RemoverQuantidade(nomeProduto, quantidade);
             }
-            model.RemoverQuantidade(nomeProduto, quantidade);
+            catch (Exception ex)
+            {
+                view.MostrarErro($"Erro ao remover quantidade: {ex.Message}");
+            }
         }
+
+        // =========================
+        // ENCERRAR
+        // =========================
 
         private void Encerrar()
         {
-            model.GuardarDados();
-            view.MostrarMensagemFinal();
-            Environment.Exit(0);
+            try
+            {
+                model.GuardarDados();
+                view.MostrarMensagemFinal();
+            }
+            catch (Exception ex)
+            {
+                view.MostrarErro($"Erro ao encerrar: {ex.Message}");
+            }
+
+            _executando = false;
         }
     }
 }
