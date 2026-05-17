@@ -133,11 +133,15 @@ namespace GestorStockDomestico
             {
                 string json = File.ReadAllText(_ficheiroJson);
 
-            var lista = JsonConvert.DeserializeObject<List<Produto>>(json)
-                        ?? new List<Produto>();
+                var lista = JsonConvert.DeserializeObject<List<Produto>>(json)
+                            ?? new List<Produto>();
 
-            // Converter para IProduto
-            _listaProdutos = new List<IProduto>(lista);
+                _listaProdutos = new List<IProduto>(lista);
+            }
+            catch
+            {
+                _listaProdutos = new List<IProduto>();
+            }
         }
 
         public void GuardarDados()

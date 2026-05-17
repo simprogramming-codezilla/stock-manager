@@ -2,8 +2,6 @@ using GestorStockDomestico.Contracts;
 
 namespace GestorStockDomestico
 {
-    // Classe de dados partilhada entre os componentes MVC
-    // NOVO (T5.7): agora implementa a interface IProduto
     class Produto : IProduto
     {
         // NOVO (T5.7): propriedades tornam-se read-only (get apenas)

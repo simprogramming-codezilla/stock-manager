@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using GestorStockDomestico.Contracts;
 
 namespace GestorStockDomestico
 {
@@ -10,11 +11,8 @@ namespace GestorStockDomestico
     // - Apresenta dados
     // - NÃO tem lógica de negócio
     // - NÃO comunica com o Model
-
     class View
     {
-        // ── Eventos (View → Controller) ──────────────────────────
-
         public delegate void OpcaoSelecionadaHandler(string opcao);
         public event OpcaoSelecionadaHandler? OpcaoSelecionada;
 
@@ -23,9 +21,6 @@ namespace GestorStockDomestico
 
         public delegate void RemocaoHandler(string nomeProduto, int quantidade);
         public event RemocaoHandler? RemocaoSolicitada;
-
-
-        // ── Menu principal ───────────────────────────────────────
 
         public void MostrarMenu()
         {
@@ -42,10 +37,7 @@ namespace GestorStockDomestico
             OpcaoSelecionada?.Invoke(opcao ?? "");
         }
 
-
-        // ── Apresentação ─────────────────────────────────────────
-
-        public void MostrarStock(List<Produto> lista)
+        public void MostrarStock(List<IProduto> lista)
         {
             Console.WriteLine("\n--- STOCK ---");
 
@@ -61,7 +53,7 @@ namespace GestorStockDomestico
             }
         }
 
-        public void MostrarListaReposicao(List<Produto> lista)
+        public void MostrarListaReposicao(List<IProduto> lista)
         {
             Console.WriteLine("\n--- REPOSIÇÃO ---");
 
@@ -76,9 +68,6 @@ namespace GestorStockDomestico
                 Console.WriteLine($"{p.Nome} - {p.Quantidade} {p.Unidade} (mín: {p.QuantidadeMinima})");
             }
         }
-
-
-        // ── Input ────────────────────────────────────────────────
 
         public void PedirDadosProduto()
         {
@@ -104,8 +93,6 @@ namespace GestorStockDomestico
             RemocaoSolicitada?.Invoke(nome, quantidade);
         }
 
-
-        // ── Método auxiliar interno da View ──────────────────────
         private int LerInteiro(string prompt)
         {
             while (true)
@@ -114,16 +101,11 @@ namespace GestorStockDomestico
                 string texto = Console.ReadLine() ?? string.Empty;
 
                 if (int.TryParse(texto, out int valor))
-                {
                     return valor;
-                }
 
                 Console.WriteLine("Valor inválido. Introduza um número inteiro.");
             }
         }
-
-
-        // ── Feedback ao utilizador ────────────────────────────────
 
         public void MostrarConfirmacao(string mensagem)
         {

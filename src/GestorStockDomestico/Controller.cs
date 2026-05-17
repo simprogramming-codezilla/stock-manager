@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using GestorStockDomestico.Contracts;
 
 namespace GestorStockDomestico
 {
@@ -21,9 +22,7 @@ namespace GestorStockDomestico
             view.DadosProdutoIntroduzidos += RegistarOuAtualizarProduto;
             view.RemocaoSolicitada        += RemoverQuantidade;
 
-            // Model → View
-            model.OperacaoConcluida      += view.MostrarConfirmacao;
-            model.ErroStockInsuficiente  += view.MostrarErro;
+            // (Eventos do Model podem manter-se, mas já não são necessários)
         }
 
         public void IniciarPrograma()
@@ -33,10 +32,6 @@ namespace GestorStockDomestico
                 view.MostrarMenu();
             }
         }
-
-        // =========================
-        // MENU
-        // =========================
 
         private void ProcessarOpcao(string opcao)
         {
@@ -68,15 +63,11 @@ namespace GestorStockDomestico
             }
         }
 
-        // =========================
-        // FLUXO MVC CORRETO
-        // =========================
-
         private void MostrarStock()
         {
             try
             {
-                var lista = new List<Produto>();
+                var lista = new List<IProduto>();
                 model.SolicitarListaProdutos(ref lista);
                 view.MostrarStock(lista);
             }
@@ -90,7 +81,7 @@ namespace GestorStockDomestico
         {
             try
             {
-                var lista = new List<Produto>();
+                var lista = new List<IProduto>();
                 model.SolicitarListaReposicao(ref lista);
                 view.MostrarListaReposicao(lista);
             }
@@ -100,15 +91,16 @@ namespace GestorStockDomestico
             }
         }
 
-        // =========================
-        // INPUT → MODEL
-        // =========================
-
         private void RegistarOuAtualizarProduto(string nome, int quantidade, int quantidadeMinima, string unidade)
         {
             try
             {
-                model.RegistarOuAtualizarProduto(nome, quantidade, quantidadeMinima, unidade);
+                var resultado = model.RegistarOuAtualizarProduto(nome, quantidade, quantidadeMinima, unidade);
+
+                if (resultado.Sucesso)
+                    view.MostrarConfirmacao(resultado.Mensagem);
+                else
+                    view.MostrarErro(resultado.Mensagem);
             }
             catch (Exception ex)
             {
@@ -120,17 +112,18 @@ namespace GestorStockDomestico
         {
             try
             {
-                model.RemoverQuantidade(nomeProduto, quantidade);
+                var resultado = model.RemoverQuantidade(nomeProduto, quantidade);
+
+                if (resultado.Sucesso)
+                    view.MostrarConfirmacao(resultado.Mensagem);
+                else
+                    view.MostrarErro(resultado.Mensagem);
             }
             catch (Exception ex)
             {
                 view.MostrarErro($"Erro ao remover quantidade: {ex.Message}");
             }
         }
-
-        // =========================
-        // ENCERRAR
-        // =========================
 
         private void Encerrar()
         {
