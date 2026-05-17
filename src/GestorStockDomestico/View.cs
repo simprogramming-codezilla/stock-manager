@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using GestorStockDomestico.Contracts;
 
 namespace GestorStockDomestico
@@ -11,8 +12,12 @@ namespace GestorStockDomestico
     // - Apresenta dados
     // - NÃO tem lógica de negócio
     // - NÃO comunica com o Model
+    // VARIANTE MVC: Curry & Grace — input entra na View
+
     class View
     {
+        // ── Eventos (View → Controller) ──────────────────────────
+
         public delegate void OpcaoSelecionadaHandler(string opcao);
         public event OpcaoSelecionadaHandler? OpcaoSelecionada;
 
@@ -21,6 +26,9 @@ namespace GestorStockDomestico
 
         public delegate void RemocaoHandler(string nomeProduto, int quantidade);
         public event RemocaoHandler? RemocaoSolicitada;
+
+
+        // ── Menu principal ───────────────────────────────────────
 
         public void MostrarMenu()
         {
@@ -37,11 +45,13 @@ namespace GestorStockDomestico
             OpcaoSelecionada?.Invoke(opcao ?? "");
         }
 
-        public void MostrarStock(List<IProduto> lista)
+        // ── Apresentação (Controller → View) ─────────────────────
+
+        public void MostrarStock(IEnumerable<IProduto> lista)
         {
             Console.WriteLine("\n--- STOCK ---");
 
-            if (lista.Count == 0)
+            if (!lista.Any())
             {
                 Console.WriteLine("Sem produtos.");
                 return;
@@ -53,11 +63,11 @@ namespace GestorStockDomestico
             }
         }
 
-        public void MostrarListaReposicao(List<IProduto> lista)
+        public void MostrarListaReposicao(IEnumerable<IProduto> lista)
         {
             Console.WriteLine("\n--- REPOSIÇÃO ---");
 
-            if (lista.Count == 0)
+            if (!lista.Any())
             {
                 Console.WriteLine("Nenhum produto abaixo do mínimo.");
                 return;
@@ -68,6 +78,9 @@ namespace GestorStockDomestico
                 Console.WriteLine($"{p.Nome} - {p.Quantidade} {p.Unidade} (mín: {p.QuantidadeMinima})");
             }
         }
+
+
+        // ── Input ────────────────────────────────────────────────
 
         public void PedirDadosProduto()
         {
@@ -93,6 +106,8 @@ namespace GestorStockDomestico
             RemocaoSolicitada?.Invoke(nome, quantidade);
         }
 
+        // ── Método auxiliar interno da View ──────────────────────
+
         private int LerInteiro(string prompt)
         {
             while (true)
@@ -106,6 +121,8 @@ namespace GestorStockDomestico
                 Console.WriteLine("Valor inválido. Introduza um número inteiro.");
             }
         }
+
+        // ── Feedback ao utilizador ────────────────────────────────
 
         public void MostrarConfirmacao(string mensagem)
         {
